@@ -27,35 +27,44 @@ void Security::begin(Preferences devLoadPreferences)
 {
   ShaLib shalib;
   // initialize
+
+  devprojStr = "";
+  devSsidStr = "";
+  devPassStr = "";
   devSerialNumberStr = "";
   devActivationCodeStr = "";
   devAwsCodeStr = "";
   devMobCodeStr = "";
   devShaDigest = "";
   int devStep = 0;
+  int devMobAwsStep = 0; 
   String devRandomStr = "";
   String devMacId = WiFi.macAddress();
-  ;
 
   //   Preferences devLoadPreferences;
   devLoadPreferences.begin("sureshkaval@100", false); //create Partion
-
+  devprojStr = devLoadPreferences.getString("project");
+  // devSsidStr = "";
+  // devPassStr = "";
   devSerialNumberStr = devLoadPreferences.getString("serialNumber");
   devActivationCodeStr = devLoadPreferences.getString("activationCode");
   devShaDigest = devLoadPreferences.getString("securityCode");
 
   // Serial.println("SHA Digest loaded from Memory = " + devShaDigest);
 
-  shalib.getRanAwsMod(devShaDigest, devStep, devRandomStr, devAwsCodeStr, devMobCodeStr);
+  shalib.getRanAwsMod(devShaDigest, devStep, devRandomStr, devMobAwsStep, devAwsCodeStr, devMobCodeStr);
 
-  // Serial.println("Serial Number    from memory       = " + devSerialNumberStr);
-  Serial.println("Activation Code  from memory       = " + devActivationCodeStr);
-  Serial.println("AWS Code decoded from devShaDigest = " + devAwsCodeStr);
-  Serial.println("Mob Code decoded from devShaDigest = " + devMobCodeStr);
-  Serial.println("Random decoded from devShaDigest   = " + devRandomStr);
-  Serial.print("devStep decoded from devShaDigest    = ");
-  Serial.println(devStep);
-  Serial.println("Mac ID from Device =               = " + devMacId);
+  // Serial.println("\nSerial Number    from memory       = " + devSerialNumberStr);
+  // Serial.println("Activation Code  from memory       = " + devActivationCodeStr);
+  // Serial.println("AWS Code decoded from devShaDigest = " + devAwsCodeStr);
+  // Serial.println("Mob Code decoded from devShaDigest = " + devMobCodeStr);
+  // Serial.println("Random decoded from devShaDigest   = " + devRandomStr);
+  // Serial.print("devStep decoded from devShaDigest    = ");
+  // Serial.println(devStep);
+  // Serial.print("devMobAwsStep decoded from devShaDigest    = ");
+  // Serial.println(devMobAwsStep);
+  // Serial.println("Mac ID from Device =               = " + devMacId);
+  // Serial.println("Security Code from memory         = " + devShaDigest);
 
   //Recreate the CODED SHA Digest
 
@@ -71,22 +80,31 @@ void Security::begin(Preferences devLoadPreferences)
   char newStepChar[2];
   String newStepStr = ltoa(devStep, newStepChar, 10);
   // Serial.println("New Step = " + newStepStr);
+
+  // Get new MobAwsStep
+  char newMobAwsStepChar[2];
+  String newMobStrStepStr = ltoa(devMobAwsStep, newMobAwsStepChar, 10);
+
   //Encode
   int newPos = 3; //Step Position
   //Encode step
   newShaDigest[newPos] = newStepStr[0];
+
+  //Encoed mobAwsStep
+  newShaDigest[2] = newMobStrStepStr[0];
+
   //Encode random
   for (int x = 0; x < 8; x++)
   {
     newPos = newPos + devStep;
     newShaDigest[newPos] = devRandomStr[x];
   }
-  for (int x = 0; x < 12; x++)
+  for (int x = 0; x < 32; x++)
   {
     newPos = newPos + devStep;
     newShaDigest[newPos] = devAwsCodeStr[x];
-    newPos = newPos + devStep;
-    newShaDigest[newPos] = devMobCodeStr[x];
+    //newPos = newPos + devStep;
+    newShaDigest[newPos + devMobAwsStep] = devMobCodeStr[x];
   }
   // Serial.println("AFTER _SAVE_AFTER _CODEING = " + newShaDigest);
 
@@ -107,10 +125,10 @@ void Security::begin(Preferences devLoadPreferences)
     devMobCodeStr = "NOTVALIDMOBCODE";
   }
   // Serial.println();
-  // Serial.println("SERIAL NUMBER   = " + devSerialNumberStr);
-  // Serial.println("ACTIVATION CODE = " + devActivationCodeStr);
-  // Serial.println("AWS CODE        = " + devAwsCodeStr);
-  // Serial.println("MOB CODe        = " + devMobCodeStr);
+  // Serial.println("SERIAL NUMBER Calculated  = " + devSerialNumberStr);
+  // Serial.println("ACTIVATION CODE Calculated= " + devActivationCodeStr);
+  // Serial.println("AWS CODE Calculated       = " + devAwsCodeStr);
+  // Serial.println("MOB CODE calculated        = " + devMobCodeStr);
 }
 
 String Security::getSerialNumber()

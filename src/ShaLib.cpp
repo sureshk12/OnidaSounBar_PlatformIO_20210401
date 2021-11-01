@@ -28,7 +28,7 @@ String ShaLib::getDigest(String serNum, String actCode, String awsMobMac, String
     for (int x = 0; x<8 ; x++) {
         pwd = pwd + specialStr.substring(x, x+1) + actCode.substring(x, x+1) + randNum.substring(x, x+1) + serNum.substring(x, x+1) + awsMobMac.substring(x, x+1);
     }
-    pwd = pwd + splRcCode;
+    pwd = pwd + awsMobMac + splRcCode;
     // Serial.println("PWD" + pwd);
 
     char pwdChar[100];
@@ -54,7 +54,8 @@ String ShaLib::getDigest(String serNum, String actCode, String awsMobMac, String
     return shaFinalStr;
 }
 
-boolean ShaLib::getRanAwsMod(String digest, int& stp, String& ran, String& aws, String& mob) {
+boolean ShaLib::getRanAwsMod(String digest, int &stp, String &ran, int &mobAwsStep, String &aws, String &mob)
+{
     boolean returnValue = true;
     ran = "";
     aws = "";
@@ -70,12 +71,17 @@ boolean ShaLib::getRanAwsMod(String digest, int& stp, String& ran, String& aws, 
         devPos = devPos + devStep;
         ran = ran + digest[devPos];
     }
+    //Get MobAwsStep
+    char devMobAwsStepChar = digest[2];
+    int devMobAwsStep = devMobAwsStepChar - 48;
+    mobAwsStep = devMobAwsStep;
     //Get AWS and Mobile Codes
-    for(int x =0; x < 12; x++) {
+    for (int x = 0; x < 32; x++)
+    {
         devPos = devPos + devStep;
         aws = aws + digest[devPos];
-        devPos = devPos + devStep;
-        mob = mob + digest[devPos];
+        //devPos = devPos + devStep;
+        mob = mob + digest[devPos + devMobAwsStep];
     }
     return returnValue;
 }

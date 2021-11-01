@@ -34,17 +34,17 @@ void setup()
   securityObj.begin(preferences);
   mainSerialNumber = securityObj.getSerialNumber();
   mainActivationCode = securityObj.getActivationCode();
-  // mainAwsCode = securityObj.getAwsCode();
-  // mainMobCode = securityObj.getMobCode();
+  mainAwsCode = securityObj.getAwsCode();
+  mainMobCode = securityObj.getMobCode();
   mainSecurityCode = securityObj.getDevShaDigest();
 
   //Printing scurity codes...
-  Serial.println("Serial Number : " + mainSerialNumber);
-  Serial.println("ActivationCode : " + mainActivationCode);
-  Serial.println("AwsCode : " + mainAwsCode);
-  Serial.println("MobCode : " + mainMobCode);
-  Serial.println("MacId : " + WiFi.macAddress());
-  Serial.println(mainSecurityCode);
+  // Serial.println("Serial Number : " + mainSerialNumber);
+  // Serial.println("ActivationCode : " + mainActivationCode);
+  // Serial.println("AwsCode : " + mainAwsCode);
+  // Serial.println("MobCode : " + mainMobCode);
+  // Serial.println("MacId : " + WiFi.macAddress());
+  //Serial.println(mainSecurityCode);
 
   //Set the Pins for LED and SWITCH
   pinMode(switchPin, INPUT);

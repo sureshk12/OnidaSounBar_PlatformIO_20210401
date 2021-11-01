@@ -7,13 +7,13 @@
 
 #include "Arduino.h"
 
-class ShaLib {
-    private:
-
-    public:
-        ShaLib();
-        String getDigest(String serNum, String actCode, String awsMobMac, String randNum, String splRcCode);
-        boolean getRanAwsMod(String digest, int& stp, String& ran, String& aws, String& mob);
+class ShaLib
+{
+private:
+public:
+  ShaLib();
+  String getDigest(String serNum, String actCode, String awsMobMac, String randNum, String splRcCode);
+  boolean getRanAwsMod(String digest, int &stp, String &ran, int &mobAwsStep, String &aws, String &mob);
 };
 
 #endif
