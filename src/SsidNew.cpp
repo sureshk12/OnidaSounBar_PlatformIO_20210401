@@ -36,7 +36,7 @@ void SsidNew::setUpNewSsid()
   while (1)
   {
     KeySense ks;
-    if (ks.switchDetect())
+    if (ks.switchDetect(40))
     {
       Serial.println("\nKey Detected");
 

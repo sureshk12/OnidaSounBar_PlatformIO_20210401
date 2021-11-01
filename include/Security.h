@@ -17,13 +17,17 @@ class Security
     String getActivationCode();
     String getAwsCode();
     String getMobCode();
-    
-  private:
+    String getDevShaDigest();
+
+  private :
+    String devprojStr;
+    String devSsidStr;
+    String devPassStr;
     String devSerialNumberStr;
     String devActivationCodeStr;
     String devAwsCodeStr;
     String devMobCodeStr;
-
+    String devShaDigest;
 };
 
 #endif

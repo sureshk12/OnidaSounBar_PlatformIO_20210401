@@ -12,7 +12,7 @@ class KeySense
 {
   public:
     KeySense();
-    boolean switchDetect();
+    boolean switchDetect(int num);
   private:
 };
 

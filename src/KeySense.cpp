@@ -28,7 +28,7 @@ KeySense::KeySense()
   
 }
 
-boolean KeySense::switchDetect() {
+boolean KeySense::switchDetect(int num) {
   debounceStartTime = millis();
   keyDebounceCount = 1;
   ledStatus = 1;
@@ -48,11 +48,15 @@ boolean KeySense::switchDetect() {
     } else {
       ledStatus = 0;
       digitalWrite(ledPin1, LOW);
-    }    
+    }
+    if (keyDebounceCount > num)
+    {
+      break;
+    }
   }
   //Serial.print("Count = ");
   //Serial.println(keyDebounceCount);
-  if(keyDebounceCount > 40) {
+  if(keyDebounceCount > num) {
     //Serial.println("Key detected !!! Stopping");
     return true;
   }

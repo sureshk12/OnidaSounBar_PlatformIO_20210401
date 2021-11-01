@@ -15,10 +15,12 @@ Security::Security(int x)
 {
   // Constructor
   Serial.println("Iam in Security Constructor");
+  
   devSerialNumberStr = "NOTVALIDSN";
   devActivationCodeStr = "NOTVALIDAC";
   devAwsCodeStr = "NOTVALIDAWSCODE";
   devMobCodeStr = "NOTVALIDMOBCODE";
+  devShaDigest = "NOTVALIDMOBCODE";
 }
 
 void Security::begin(Preferences devLoadPreferences)
@@ -29,7 +31,7 @@ void Security::begin(Preferences devLoadPreferences)
   devActivationCodeStr = "";
   devAwsCodeStr = "";
   devMobCodeStr = "";
-  String devShaDigest = "";
+  devShaDigest = "";
   int devStep = 0;
   String devRandomStr = "";
   String devMacId = WiFi.macAddress();
@@ -37,6 +39,7 @@ void Security::begin(Preferences devLoadPreferences)
 
   //   Preferences devLoadPreferences;
   devLoadPreferences.begin("sureshkaval@100", false); //create Partion
+
   devSerialNumberStr = devLoadPreferences.getString("serialNumber");
   devActivationCodeStr = devLoadPreferences.getString("activationCode");
   devShaDigest = devLoadPreferences.getString("securityCode");
@@ -46,13 +49,13 @@ void Security::begin(Preferences devLoadPreferences)
   shalib.getRanAwsMod(devShaDigest, devStep, devRandomStr, devAwsCodeStr, devMobCodeStr);
 
   // Serial.println("Serial Number    from memory       = " + devSerialNumberStr);
-  // Serial.println("Activation Code  from memory       = " + devActivationCodeStr);
-  // Serial.println("AWS Code decoded from devShaDigest = " + devAwsCodeStr);
-  // Serial.println("Mob Code decoded from devShaDigest = " + devMobCodeStr);
-  // Serial.println("Random decoded from devShaDigest   = " + devRandomStr);
-  // Serial.print("devStep decoded from devShaDigest    = ");
-  // Serial.println(devStep);
-  // Serial.println("Mac ID from Device =               = " + devMacId);
+  Serial.println("Activation Code  from memory       = " + devActivationCodeStr);
+  Serial.println("AWS Code decoded from devShaDigest = " + devAwsCodeStr);
+  Serial.println("Mob Code decoded from devShaDigest = " + devMobCodeStr);
+  Serial.println("Random decoded from devShaDigest   = " + devRandomStr);
+  Serial.print("devStep decoded from devShaDigest    = ");
+  Serial.println(devStep);
+  Serial.println("Mac ID from Device =               = " + devMacId);
 
   //Recreate the CODED SHA Digest
 
@@ -128,4 +131,9 @@ String Security::getAwsCode()
 String Security::getMobCode()
 {
   return devMobCodeStr;
+}
+
+String Security::getDevShaDigest()
+{
+  return devShaDigest;
 }

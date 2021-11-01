@@ -1,0 +1,264 @@
+/*
+  Ota.cpp - Library for storing data in flash code.
+  Created by Suresh Kumar, October 05, 2019.
+*/
+
+#include "Arduino.h" // Arduino Library
+#include <WiFi.h>
+#include <WiFiMulti.h>
+#include <HTTPClient.h>
+#include <HTTPUpdate.h>
+#include "mbedtls/md.h"  //sha1.h"//md.h"
+#include <Preferences.h> // Preferences Library
+
+#include "Ota.h" // H file for Ota.h
+#include "Nvm.h"
+#include "DeviceConstants.h"
+#include <string>
+
+/*
+ * Constants 
+*/
+//WiFiMulti WiFiMulti;
+String deviceVersion = ""; //Date20191005 - last digit is version number on that date
+//extern const char *verDevOri;
+String deviceVersionOriginal = String(verDevOri); //"201910050" ;
+//extern const char *devSlno;
+String deviceSlno1 = String(devSlno); //"11O9190001";
+//extern const char *devId;
+String deviceId1 = String(devId); //"DID-5DA5E7C14766";
+//extern const char *webUrl;
+String webUrlStr = String(webUrl);
+//extern const char *datDevOri;
+String deviceDateOriginal = String(datDevOri);
+
+/*
+ * Intilization of Class
+ * Intilizes EEPROM with max Size
+ * Set the Constant maxMem with max size
+*/
+Ota::Ota()
+{
+    //Default Constructor
+}
+
+/*
+  * Checks for 50 Switches ON if less than 50 switch ON, returns with out OTA
+  * Function gets Current date from web site, if web site date is less than stored OtaCheckDate + 7 days , returns without OTA
+  * gets current version on web by sending SHA1 code and MacId
+  * if current version on web higher than the device version, system intiates OTA by sending SHA1, MacId, Device Slno, Device key
+*/
+void Ota::checkDoOta(char *ssidChar, char *passChar)
+{
+    Serial.println("IAM IN OTA!!!");
+    Nvm nvm;
+    char *swoncounter;
+    int switchOnCounter = nvm.read_int("otav1"); //otav1=switchOnCounter
+    //If previous date  = 0 as in the case of new Device
+    int previousDate = nvm.read_int("otav2"); //otav2=previous data
+    if (previousDate == 0)
+    {
+        previousDate = deviceDateOriginal.toInt();
+        nvm.write_int("otav2", previousDate);
+    }
+    deviceVersion = nvm.read_String1("otav3"); //otav3 is device version
+    Serial.print("NVM::::Counter :");
+    Serial.print(switchOnCounter);
+    Serial.print("/Date value :");
+    Serial.print(previousDate);
+    Serial.print("/Version :");
+    Serial.print(deviceVersion);
+    switchOnCounter++;
+    switchOnCounter = 31; //ONLY FOR TESTING
+    if (switchOnCounter < 30)
+    {
+        nvm.write_int("otav1", switchOnCounter);
+        return;
+    }
+    nvm.write_int("otav1", switchOnCounter);
+
+    HTTPClient httpClient;
+    String inputSha1;
+
+    //httpClient.begin("http://192.168.2.9/OnidaTvDataV0/index.jsp");
+    //String webStr = webUrlStr + "index.jsp";
+    //Serial.println(webStr);
+    httpClient.begin(webUrlStr + "index.jsp");
+    if (deviceVersion.equals("") || deviceVersion.length() < 8)
+    {
+        String currDevVer = deviceVersionOriginal; //"201910050";
+        nvm.write_String1("otav3", currDevVer);
+        Serial.println("WRITING DEVICE VERSION AS DEVICE VERSION WAS NIL");
+    }
+
+    int httpCode = httpClient.GET();
+    if (httpCode > 0)
+    {
+        Serial.print("Received HTTP Code : ");
+        Serial.println(httpCode);
+        int y = 0;
+        if (httpCode == HTTP_CODE_OK)
+        {
+            String payLoad = httpClient.getString();
+            String pLA = "  ,06-Oct-2019 AD,  ";
+            int startCopy = 0;
+            for (int x = 0; x < payLoad.length(); x++)
+            {
+                if (payLoad[x] == ',')
+                {
+                    startCopy = 1;
+                }
+                if (startCopy == 1)
+                {
+                    pLA[y] = payLoad[x];
+                    y++;
+                }
+            }
+            Serial.print("Date is : ");
+            Serial.println(pLA);
+            String currMonthStr = "xxx";
+            currMonthStr[0] = pLA[4];
+            currMonthStr[1] = pLA[5];
+            currMonthStr[2] = pLA[6];
+            String monthStr[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+            int monthVal[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+            //previousDate = 7179;//ONLY FOR TESTING PURPOSE ONLY
+            int webMonthVal = 0;
+            for (int p = 0; p < 12; p++)
+            {
+                if (monthStr[p].equals(currMonthStr))
+                {
+                    webMonthVal = monthVal[p];
+                    break;
+                }
+            }
+            String webYearStr = "xx";
+            webYearStr[0] = pLA[10];
+            webYearStr[1] = pLA[11];
+            int webYearInt = webYearStr.toInt();
+            String webDayStr = "xx";
+            webDayStr[0] = pLA[1];
+            webDayStr[1] = pLA[2];
+            int webDayInt = webDayStr.toInt();
+            int webDate = (webYearInt * 365) + webMonthVal + webDayInt;
+            //Serial.print("YEAR : ");Serial.print(currentYearInt); Serial.print("Month value : ");Serial.print(currentMonthVal); Serial.print("Day : "); Serial.println(currentDayInt);
+            //Serial.print("Current Year value : ");Serial.print(currentDate);Serial.print(" / Previous Data : "); Serial.println(previousDate);
+            Serial.print("previous date value :");
+            Serial.println(previousDate);
+            Serial.print("Current date value :");
+            Serial.println(webDate);
+            if ((webDate - previousDate) < 15)
+            {
+                Serial.println("Number of days less than 15days");
+                return;
+            }
+            nvm.write_int("otav1", 0);
+            nvm.write_int("otav2", webDate);
+
+            inputSha1 = "Suresh" + pLA.substring(11, 12) +
+                        pLA.substring(2, 3) + pLA.substring(9, 10) + pLA.substring(10, 11) +
+                        pLA.substring(5, 6) + "Kaval" + pLA.substring(4, 5) +
+                        pLA.substring(8, 9) + pLA.substring(1, 2) + pLA.substring(6, 7);
+
+            //Serial.print("Input String : ");
+            //Serial.println(inputSha1);
+            char payloadChar[21];
+            int x = 0;
+            for (x = 0; x < inputSha1.length(); x++)
+            {
+                payloadChar[x] = inputSha1[x];
+            }
+            payloadChar[x] = '\0';
+            String resultSha = getShaCode(payloadChar);
+            //Serial.print("Input Char String : ");
+            //Serial.println(payloadChar);
+            //Serial.print("Result String : ");
+            //Serial.println(resultSha);
+            httpClient.begin(webUrlStr + "ota/getVersion.jsp?key=" + resultSha + "&mac=" + WiFi.macAddress() + "&devSlNo=" + deviceSlno1 + "&devId=" + deviceId1);
+            int httpCode = httpClient.GET();
+            if (httpCode > 0)
+            {
+                Serial.print("Received HTTP Code : ");
+                Serial.println(httpCode);
+                if (httpCode == HTTP_CODE_OK)
+                {
+                    String versionWebStr = httpClient.getString();
+                    long versionWebLong = versionWebStr.toDouble();
+                    long deviceVersionLong = deviceVersion.toDouble();
+                    Serial.print("Version number on Web / on Device is : ");
+                    Serial.print(versionWebLong);
+                    Serial.print(" / ");
+                    Serial.println(deviceVersionLong);
+
+                    if (versionWebLong > deviceVersionLong)
+                    {
+                        Serial.println("New Version Available");
+                        WiFiClient client;
+                        nvm.write_String1("otav3", versionWebStr);
+                        t_httpUpdate_return ret = httpUpdate.update(client, webUrlStr + "ota/Sketch_OnidaTv_v3_Ota_20190725.ino.bin?key=" + resultSha);
+                        nvm.write_String1("otav3", deviceVersion);
+                        Serial.print("ret :");
+                        Serial.println(ret);
+                        switch (ret)
+                        {
+                        case HTTP_UPDATE_FAILED:
+                            Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
+                            break;
+
+                        case HTTP_UPDATE_NO_UPDATES:
+                            Serial.println("HTTP_UPDATE_NO_UPDATES");
+                            break;
+
+                        case HTTP_UPDATE_OK:
+                            Serial.println("HTTP_UPDATE_OK");
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        Serial.println("Your Version is up to date!!!!");
+                    }
+                }
+            }
+        }
+    }
+}
+
+/*
+  * Gets the date from server www.ashank.com
+*/
+
+String Ota::getShaCode(char *payload)
+{
+    byte shaResult[32];
+    mbedtls_md_context_t ctx;
+    mbedtls_md_type_t md_type = MBEDTLS_MD_SHA1;
+
+    const size_t payloadLength = strlen(payload);
+
+    mbedtls_md_init(&ctx);
+    mbedtls_md_setup(&ctx, mbedtls_md_info_from_type(md_type), 0);
+    mbedtls_md_starts(&ctx);
+    mbedtls_md_update(&ctx, (const unsigned char *)payload, payloadLength);
+    mbedtls_md_finish(&ctx, shaResult);
+    mbedtls_md_free(&ctx);
+
+    char tab[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    //Serial.print("Hash: ");
+    char fullStr[41];
+    int p = 0;
+    for (int i = 0; i < sizeof(shaResult); i++)
+    {
+        if (p < 40)
+        {
+            int x = shaResult[i] / 16;
+            int y = shaResult[i] % 16;
+            fullStr[p] = tab[x];
+            p++;
+            fullStr[p] = tab[y];
+            p++;
+        }
+    }
+    fullStr[p] = '\0';
+    return fullStr;
+}

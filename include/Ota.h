@@ -11,9 +11,8 @@ class Ota
 {
   public:
     Ota();
-    void checkDoOta(char *ssidChar, char *passChar);
+    void checkDoOta(String serialNumber, String activation);
 
-    
   private:
     void getWebDate();
     void checkWebSite();

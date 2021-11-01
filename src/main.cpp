@@ -5,12 +5,14 @@
 #include "TcpMdnsMqtt.h"
 #include "DeviceConstants.h"
 #include "security.h"
+#include "Ota.h"
 
 Preferences preferences;
 Security securityObj(0);
 SsidNew ssidnew;
 TcpMdnsMqtt tcpmdnsmqtt;
 DeviceConstants dc;
+Ota ota;
 
 int testPrint = 0;                     //[TESTING]Used for Testing
 const int switchPin = dc.switchPinVal; //Switch Port
@@ -20,6 +22,7 @@ String mainSerialNumber;
 String mainActivationCode;
 String mainAwsCode;
 String mainMobCode;
+String mainSecurityCode;
 
 void setup()
 {
@@ -31,8 +34,17 @@ void setup()
   securityObj.begin(preferences);
   mainSerialNumber = securityObj.getSerialNumber();
   mainActivationCode = securityObj.getActivationCode();
-  mainAwsCode = securityObj.getAwsCode();
-  mainMobCode = securityObj.getMobCode();
+  // mainAwsCode = securityObj.getAwsCode();
+  // mainMobCode = securityObj.getMobCode();
+  mainSecurityCode = securityObj.getDevShaDigest();
+
+  //Printing scurity codes...
+  Serial.println("Serial Number : " + mainSerialNumber);
+  Serial.println("ActivationCode : " + mainActivationCode);
+  Serial.println("AwsCode : " + mainAwsCode);
+  Serial.println("MobCode : " + mainMobCode);
+  Serial.println("MacId : " + WiFi.macAddress());
+  Serial.println(mainSecurityCode);
 
   //Set the Pins for LED and SWITCH
   pinMode(switchPin, INPUT);
@@ -41,6 +53,8 @@ void setup()
   // Serial.println("iam in main setup function line 26");
   //Check for SSID and connect to previous set SSID
   ssidnew.wifiConnect();
+  //Check OTA
+  // ota.checkDoOta(mainSerialNumber, mainActivationCode);
   tcpmdnsmqtt.startTcpMdnsMqtt(mainSerialNumber, mainActivationCode, mainAwsCode, mainMobCode);
   delay(500); // needed to start-up task1
 }
