@@ -59,28 +59,26 @@ TcpMdnsMqtt::TcpMdnsMqtt() {
 
 void decodeData(String dataString) {
   String dataStr = dataString;
-  recdSerNum = dataStr.substring(0, 10);
-  recdActCode = dataStr.substring(11,21);
-  recdDigest = dataStr.substring(22,86);
-  recdDummyVal = dataStr.substring(87,90);
-  recdRepeatValue = dataStr.substring(91,93);
-  recdAdditionData = dataStr.substring(94,96);
-  recdMainData = dataStr.substring(97,99);
+  recdSerNum = dataStr.substring(0, 14);
+  recdActCode = dataStr.substring(15,25);
+  recdDigest = dataStr.substring(26,90);
+  recdDummyVal = dataStr.substring(91,94);
+  recdRepeatValue = dataStr.substring(95,97);
+  recdAdditionData = dataStr.substring(98,100);
+  recdMainData = dataStr.substring(101,103);
   // Serial.print(recdSerNum);Serial.print(" ? ");Serial.println(tSerNum);
   // Serial.print(recdActCode);Serial.print(" ? ");Serial.println(tActCode);    
   // Serial.println("recdDigest = " + recdDigest);
   // Serial.print(recdRepeatValue);Serial.print(" : ");Serial.print(recdAdditionData);Serial.print(" : ");Serial.println(recdMainData);    
 }
 
-
-
-
-
 String calculateDigestfromReceivedDigest(String rDigest, String dAwsMobCode) {
+  //get STEP
   char str[2];
   str[0] = rDigest[3];
   int calStep = str[0] - 48;
   // Serial.print("calculatedStep = "); Serial.println(calStep);
+  //Get Random
   String calRan = "";
   for (int x =0; x < 8; x++) {
     calRan = calRan + rDigest[(3 + calStep) + (x * calStep) ];
@@ -111,6 +109,7 @@ void mqttCallback (char* topic, byte* payload, unsigned int length) {
   String datStrM = (char *)payload;
   decodeData(datStrM); 
 
+  int err = 0;
   if(recdSerNum.equals(tSerNum)) {                   
     if(recdActCode.equals(tActCode)) {
       //Move Forward
@@ -122,14 +121,24 @@ void mqttCallback (char* topic, byte* payload, unsigned int length) {
       } else {
         // client.write("WRONGDEVICE\r\n\0");
         Serial.println("WRONGDEVICE\r\n\0");
+        err = 1;
       }
     } else {
       // client.write("WRONGDEVICE\r\n\0");
       Serial.println("WRONGDEVICE\r\n\0");
+      err = 1;
     }
   } else {
     // client.write("WRONGDEVICE\r\n\0");
     Serial.println("WRONGDEVICE\r\n\0");
+    err = 1;
+  }
+  int pprint = 0;
+  while(err == 1) {
+    if(pprint == 0){
+      pprint = 1;
+      Serial.println("WRONG CREDENTIALS :-( ");
+    }
   }
 
   //splremote.sendDeviceCommand(0, (char *)payload, serialNumber, awsCode, mobileCode); 
@@ -202,7 +211,7 @@ void TcpMdnsMqtt::tcpLoop() {
   boolean isClientConnected = false;  
   //unsigned long tart = millis(); 
   if (client) {                     
-    //Serial.println("new client");         
+    Serial.println("new client");         
     /* check client is connected */           
     while (client.connected()) { 
       isClientConnected = true;         
@@ -213,8 +222,8 @@ void TcpMdnsMqtt::tcpLoop() {
         }else {
             data[299] = '\0';
         }
-        // Serial.print("MOB Message Received: ");            
-        // Serial.println((char *)data);
+        Serial.print("MOB Message Received: ");            
+        Serial.println((char *)data);
         String dataStr = (char *)data;
         decodeData((char*)data);
         if(data[11] != 's') {
@@ -222,8 +231,8 @@ void TcpMdnsMqtt::tcpLoop() {
           if(recdSerNum.equals(deviceSerialNumber)) {                   
             if(recdActCode.equals(deviceActivationCode)) {
               String calculatedDigest = calculateDigestfromReceivedDigest(recdDigest, deviceMobileCode);
-              // Serial.println("received Digest = " + recdDigest);
-              // Serial.println("Calculated Digest = " + calculatedDigest);
+              Serial.println("received Digest = " + recdDigest);
+              Serial.println("Calculated Digest = " + calculatedDigest);
               if(recdDigest.equals(calculatedDigest)) {
               // if(mobCode.equals(deviceMobileCode)) {
                 client.write("OK::\r\n\0");
@@ -247,7 +256,7 @@ void TcpMdnsMqtt::tcpLoop() {
           Serial.println(key4);
           
           if(recdSerNum.equals(deviceSerialNumber)) {
-            //Serial.println("key1 : Ok");
+            // Serial.println("key1 : Ok");
             if(key2.equals("suresh")) {
               //Serial.println("key2 : Ok");
               if(key3.equals("kaval0")) {

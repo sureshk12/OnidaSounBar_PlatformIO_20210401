@@ -31,7 +31,7 @@ String ShaLib::getDigest(String serNum, String actCode, String awsMobMac, String
     pwd = pwd + awsMobMac + splRcCode;
     // Serial.println("PWD" + pwd);
 
-    char pwdChar[100];
+    char pwdChar[120];
     pwd.toCharArray(pwdChar, pwd.length()+1);
     //create SHA256 bytes
     mbedtls_md_context_t ctx;
@@ -65,16 +65,19 @@ boolean ShaLib::getRanAwsMod(String digest, int &stp, String &ran, int &mobAwsSt
     char devStepChar = digest[3];
     int devStep = devStepChar - 48;
     stp = devStep;
+    // Serial.print("STEP : ");Serial.println(devStepChar);
     //Get random string    
     int devPos = 3;
     for(int x =0; x < 8; x++) {
         devPos = devPos + devStep;
         ran = ran + digest[devPos];
     }
+    // Serial.print("Random : "); Serial.println(ran);
     //Get MobAwsStep
     char devMobAwsStepChar = digest[2];
     int devMobAwsStep = devMobAwsStepChar - 48;
     mobAwsStep = devMobAwsStep;
+    // Serial.print("AWSMOBStep : "); Serial.println(devMobAwsStepChar);
     //Get AWS and Mobile Codes
     for (int x = 0; x < 32; x++)
     {

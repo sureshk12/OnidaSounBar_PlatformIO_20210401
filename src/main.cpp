@@ -39,8 +39,8 @@ void setup()
   mainSecurityCode = securityObj.getDevShaDigest();
 
   //Printing scurity codes...
-  // Serial.println("Serial Number : " + mainSerialNumber);
-  // Serial.println("ActivationCode : " + mainActivationCode);
+  Serial.println("Serial Number : " + mainSerialNumber);
+  Serial.println("ActivationCode : " + mainActivationCode);
   // Serial.println("AwsCode : " + mainAwsCode);
   // Serial.println("MobCode : " + mainMobCode);
   // Serial.println("MacId : " + WiFi.macAddress());
