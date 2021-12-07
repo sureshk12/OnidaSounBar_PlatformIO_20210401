@@ -74,6 +74,7 @@ void decodeData(String dataString) {
 
 String calculateDigestfromReceivedDigest(String rDigest, String dAwsMobCode) {
   //get STEP
+  // Serial.println("Digest Recd = " + rDigest);
   char str[2];
   str[0] = rDigest[3];
   int calStep = str[0] - 48;
@@ -83,6 +84,11 @@ String calculateDigestfromReceivedDigest(String rDigest, String dAwsMobCode) {
   for (int x =0; x < 8; x++) {
     calRan = calRan + rDigest[(3 + calStep) + (x * calStep) ];
   }
+  // Serial.println("Calculated random = " + calRan);
+
+  // Serial.println("Received Serial Number = " + recdSerNum);
+  // Serial.println("Received Activation = " + recdActCode);
+  // Serial.println("Received DataStr = " + recdMainData);
   // Serial.println("Device AWS / Mobile code = " + dAwsMobCode);
 
   String calDigest = shalib.getDigest(recdSerNum, recdActCode, dAwsMobCode, calRan, recdMainData);
@@ -92,16 +98,14 @@ String calculateDigestfromReceivedDigest(String rDigest, String dAwsMobCode) {
   for(int x = 0; x < 8; x++) {
     calDigest[(3 + calStep) + (x * calStep)] = calRan[x];
   }
-  
-  // Serial.println("calculated random = " + calRan);
-  // Serial.println("Mob Digest Recd   = " + mobCode);
+
   // Serial.println("Calculated Digest = " + calDigest);
   return calDigest;
 }
 
 void mqttCallback (char* topic, byte* payload, unsigned int length) {
   // Serial.print("AWS Message : ");
-  //Serial.println(topic);
+  // Serial.println(topic);
   // for (int i = 0; i < length; i++) {
   //     Serial.print((char)payload[i]);
   // }
@@ -120,18 +124,18 @@ void mqttCallback (char* topic, byte* payload, unsigned int length) {
         Serial.println("AWS Data = " + recdRepeatValue + " : " + recdAdditionData + " : " + recdMainData);
       } else {
         // client.write("WRONGDEVICE\r\n\0");
-        Serial.println("WRONGDEVICE\r\n\0");
-        err = 1;
+        Serial.println("WRONGDEVICE3\r\n\0");
+        //err = 1;
       }
     } else {
       // client.write("WRONGDEVICE\r\n\0");
-      Serial.println("WRONGDEVICE\r\n\0");
-      err = 1;
+      Serial.println("WRONGDEVICE2\r\n\0");
+      //err = 1;
     }
   } else {
     // client.write("WRONGDEVICE\r\n\0");
-    Serial.println("WRONGDEVICE\r\n\0");
-    err = 1;
+    Serial.println("WRONGDEVICE1\r\n\0");
+    //err = 1;
   }
   int pprint = 0;
   while(err == 1) {
@@ -154,9 +158,9 @@ void TcpMdnsMqtt::startTcpMdnsMqtt(String serNum1, String actCode1, String awsCo
   tAwsCode = awsCode1;
   tMobCode = mobCode1;
 
-  char y[11];
-  char u[11];
-  char v[11];
+  char y[15];
+  char u[15];
+  char v[15];
   deviceSerialNumber.toCharArray(y, deviceSerialNumber.length()+1);
   pubTopic = y;
   deviceSerialNumber.toCharArray(u, deviceSerialNumber.length()+1);
@@ -192,6 +196,7 @@ void TcpMdnsMqtt::startTcpMdnsMqtt(String serNum1, String actCode1, String awsCo
   mqttClient.setCallback(mqttCallback);
   
   while (!mqttClient.connected()) {
+    
     if (mqttClient.connect("ESP32_device")) {
       Serial.println("AWS Connected.");
       int qos = 0;
@@ -222,8 +227,8 @@ void TcpMdnsMqtt::tcpLoop() {
         }else {
             data[299] = '\0';
         }
-        Serial.print("MOB Message Received: ");            
-        Serial.println((char *)data);
+        // Serial.print("MOB Message Received: ");            
+        // Serial.println((char *)data);
         String dataStr = (char *)data;
         decodeData((char*)data);
         if(data[11] != 's') {
@@ -231,8 +236,8 @@ void TcpMdnsMqtt::tcpLoop() {
           if(recdSerNum.equals(deviceSerialNumber)) {                   
             if(recdActCode.equals(deviceActivationCode)) {
               String calculatedDigest = calculateDigestfromReceivedDigest(recdDigest, deviceMobileCode);
-              Serial.println("received Digest = " + recdDigest);
-              Serial.println("Calculated Digest = " + calculatedDigest);
+              // Serial.println("received Digest = " + recdDigest);
+              // Serial.println("Calculated Digest = " + calculatedDigest);
               if(recdDigest.equals(calculatedDigest)) {
               // if(mobCode.equals(deviceMobileCode)) {
                 client.write("OK::\r\n\0");

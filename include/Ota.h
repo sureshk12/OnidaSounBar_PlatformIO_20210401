@@ -11,7 +11,7 @@ class Ota
 {
   public:
     Ota();
-    void checkDoOta(String serialNumber, String activation);
+    void checkDoOta(String serialNumber, String activation, String version);
 
   private:
     void getWebDate();
@@ -19,6 +19,8 @@ class Ota
     int getLatestVersion();
     void doOta();
     String getShaCode(char *inputString);
+
+    void doOta(String serialNumber, String activation);
 };
 
 #endif

@@ -9,25 +9,27 @@
 
 class Security
 {
-  public:
-    Security(int x);
-    void begin(Preferences preferences);
+public:
+  Security(int x);
+  void begin(Preferences preferences);
 
-    String getSerialNumber();
-    String getActivationCode();
-    String getAwsCode();
-    String getMobCode();
-    String getDevShaDigest();
+  String getSerialNumber();
+  String getActivationCode();
+  String getAwsCode();
+  String getMobCode();
+  String getDevShaDigest();
+  String getVersion();
 
-  private :
-    String devprojStr;
-    String devSsidStr;
-    String devPassStr;
-    String devSerialNumberStr;
-    String devActivationCodeStr;
-    String devAwsCodeStr;
-    String devMobCodeStr;
-    String devShaDigest;
+private:
+  String devprojStr;
+  String devSsidStr;
+  String devPassStr;
+  String devSerialNumberStr;
+  String devActivationCodeStr;
+  String devAwsCodeStr;
+  String devMobCodeStr;
+  String devShaDigest;
+  String versionStr;
 };
 
 #endif

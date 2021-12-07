@@ -23,6 +23,7 @@ String mainActivationCode;
 String mainAwsCode;
 String mainMobCode;
 String mainSecurityCode;
+String mainVersion;
 
 void setup()
 {
@@ -30,13 +31,15 @@ void setup()
   //Set Serial communication for Debug Messages
   Serial.begin(115200);
   delay(100);
-
+  //Get Device Constants
   securityObj.begin(preferences);
   mainSerialNumber = securityObj.getSerialNumber();
   mainActivationCode = securityObj.getActivationCode();
   mainAwsCode = securityObj.getAwsCode();
   mainMobCode = securityObj.getMobCode();
   mainSecurityCode = securityObj.getDevShaDigest();
+  //mainVersion = securityObj.getVersion();
+  mainVersion = "000001";
 
   //Printing scurity codes...
   Serial.println("Serial Number : " + mainSerialNumber);
@@ -45,17 +48,22 @@ void setup()
   // Serial.println("MobCode : " + mainMobCode);
   // Serial.println("MacId : " + WiFi.macAddress());
   //Serial.println(mainSecurityCode);
+  //Serial.println("Version : " + mainVersion);
 
   //Set the Pins for LED and SWITCH
   pinMode(switchPin, INPUT);
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, HIGH);
-  // Serial.println("iam in main setup function line 26");
-  //Check for SSID and connect to previous set SSID
+  
+  //Check for SSID and connect to previous stored SSID
   ssidnew.wifiConnect();
+
   //Check OTA
-  // ota.checkDoOta(mainSerialNumber, mainActivationCode);
+  ota.checkDoOta(mainSerialNumber, mainActivationCode, mainVersion);
+
+  //Start TCP and MQtt 
   tcpmdnsmqtt.startTcpMdnsMqtt(mainSerialNumber, mainActivationCode, mainAwsCode, mainMobCode);
+  
   delay(500); // needed to start-up task1
 }
 

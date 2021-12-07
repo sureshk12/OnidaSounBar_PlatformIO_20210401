@@ -21,6 +21,7 @@ Security::Security(int x)
   devAwsCodeStr = "NOTVALIDAWSCODE";
   devMobCodeStr = "NOTVALIDMOBCODE";
   devShaDigest = "NOTVALIDMOBCODE";
+  versionStr = "NOTVALIDVERSION";
 }
 
 void Security::begin(Preferences devLoadPreferences)
@@ -36,6 +37,7 @@ void Security::begin(Preferences devLoadPreferences)
   devAwsCodeStr = "";
   devMobCodeStr = "";
   devShaDigest = "";
+  versionStr = "";
   int devStep = 0;
   int devMobAwsStep = 0; 
   String devRandomStr = "";
@@ -49,6 +51,7 @@ void Security::begin(Preferences devLoadPreferences)
   devSerialNumberStr = devLoadPreferences.getString("serialNumber");
   devActivationCodeStr = devLoadPreferences.getString("activationCode");
   devShaDigest = devLoadPreferences.getString("securityCode");
+  versionStr = devLoadPreferences.getString("version");
 
   // Serial.println("SHA Digest loaded from Memory = " + devShaDigest);
 
@@ -90,7 +93,7 @@ void Security::begin(Preferences devLoadPreferences)
   //Encode step
   newShaDigest[newPos] = newStepStr[0];
 
-  //Encoed mobAwsStep
+  //Encode mobAwsStep
   newShaDigest[2] = newMobStrStepStr[0];
 
   //Encode random
@@ -154,4 +157,9 @@ String Security::getMobCode()
 String Security::getDevShaDigest()
 {
   return devShaDigest;
+}
+
+String Security::getVersion()
+{
+  return versionStr;
 }

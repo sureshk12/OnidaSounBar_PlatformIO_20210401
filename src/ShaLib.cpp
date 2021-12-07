@@ -29,7 +29,7 @@ String ShaLib::getDigest(String serNum, String actCode, String awsMobMac, String
         pwd = pwd + specialStr.substring(x, x+1) + actCode.substring(x, x+1) + randNum.substring(x, x+1) + serNum.substring(x, x+1) + awsMobMac.substring(x, x+1);
     }
     pwd = pwd + awsMobMac + splRcCode;
-    // Serial.println("PWD" + pwd);
+    //Serial.println("PWD :" + pwd);
 
     char pwdChar[120];
     pwd.toCharArray(pwdChar, pwd.length()+1);
