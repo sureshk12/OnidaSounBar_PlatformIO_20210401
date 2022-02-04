@@ -11,20 +11,21 @@
 //#include "TcpMdnsMqtt.h"
 //#include "SplRemote.h"
 
-class TcpMdnsMqtt {
-  public:
+class TcpMdnsMqtt
+{
+public:
   TcpMdnsMqtt();
   void startTcpMdnsMqtt(String serNum, String actCode, String awsCode, String mobCode);
   void tcpLoop();
   void mqttLoop();
   // void decodeData(String dataString);
 
-  private:
-    String deviceSerialNumber = "";
-    String deviceActivationCode = "";
-    String deviceAwsCode = "";
-    String deviceMobileCode = "";     
 
+private:
+  String deviceSerialNumber = "";
+  String deviceActivationCode = "";
+  String deviceAwsCode = "";
+  String deviceMobileCode = "";  
 };
 
 #endif

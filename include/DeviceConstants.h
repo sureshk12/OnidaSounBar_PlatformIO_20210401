@@ -12,6 +12,7 @@ class DeviceConstants
 public:
   const int switchPinVal = 0; //Switch Connected to Port 0
   const int ledPinVal = 2;    //LED Connected to Port 2
+  const int ledSwitch = 4; //SW ON/OFF low = OFF; high = ON
 
   const char *devSerNum = "11O9190001";
 

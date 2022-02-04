@@ -6,6 +6,7 @@
 #include "DeviceConstants.h"
 #include "security.h"
 #include "Ota.h"
+#include "DoSwWork.h"
 
 Preferences preferences;
 Security securityObj(0);
@@ -13,10 +14,12 @@ SsidNew ssidnew;
 TcpMdnsMqtt tcpmdnsmqtt;
 DeviceConstants dc;
 Ota ota;
+DoSwWork doswworkmain;
 
 int testPrint = 0;                     //[TESTING]Used for Testing
 const int switchPin = dc.switchPinVal; //Switch Port
 const int ledPin = dc.ledPinVal;       //LED Port
+const int switchControl = dc.ledSwitch;//Switch Control
 
 String mainSerialNumber;
 String mainActivationCode;
@@ -53,8 +56,12 @@ void setup()
   //Set the Pins for LED and SWITCH
   pinMode(switchPin, INPUT);
   pinMode(ledPin, OUTPUT);
+  pinMode(switchControl, OUTPUT);
   digitalWrite(ledPin, HIGH);
-  
+  digitalWrite(switchControl, HIGH);
+  delay(50);
+  doswworkmain.begin();
+
   //Check for SSID and connect to previous stored SSID
   ssidnew.wifiConnect();
 

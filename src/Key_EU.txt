@@ -20,12 +20,11 @@
  */
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-    //eu-west-1
-    const char rootCA[] = {"-----BEGIN CERTIFICATE-----\n\
+//eu-west-1
+const char rootCA[] = {"-----BEGIN CERTIFICATE-----\n\
 MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\n\
 ADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6\n\
 b24gUm9vdCBDQSAxMB4XDTE1MDUyNjAwMDAwMFoXDTM4MDExNzAwMDAwMFowOTEL\n\
@@ -46,7 +45,7 @@ o/ufQJVtMVT8QtPHRh8jrdkPSHCa2XV4cdFyQzR1bldZwgJcJmApzyMZFo6IQ6XU\n\
 rqXRfboQnoZsG4q5WTP468SQvvG5\n\
 -----END CERTIFICATE-----\n"};
 
-    const char certificate[] = {"-----BEGIN CERTIFICATE-----\n\
+const char certificate[] = {"-----BEGIN CERTIFICATE-----\n\
 MIIDWjCCAkKgAwIBAgIVAPxmRMy1Z5+1w2/icoGuZhyNL1I4MA0GCSqGSIb3DQEB\n\
 CwUAME0xSzBJBgNVBAsMQkFtYXpvbiBXZWIgU2VydmljZXMgTz1BbWF6b24uY29t\n\
 IEluYy4gTD1TZWF0dGxlIFNUPVdhc2hpbmd0b24gQz1VUzAeFw0yMjAxMjIxMTIy\n\
@@ -67,7 +66,7 @@ GYTwUGaUKv5IPxR51Oyl4syjO6PfyXYcMV2/C6JmJgLqzcUaSJ6d4iD/mxievfNB\n\
 GVvYZkZhce5UfCIUd7vWfKey8zciw8Lb4y1OvNtA8kA19zsYDPGirkh7rxDEKw==\n\
 -----END CERTIFICATE-----\n"};
 
-    const char privateKey[] = {"-----BEGIN RSA PRIVATE KEY-----\n\
+const char privateKey[] = {"-----BEGIN RSA PRIVATE KEY-----\n\
 MIIEpAIBAAKCAQEAxPQ+w0ja5vSj8nqnDa/myZc2VSQJQF7ODGfrAHjqbNYVt0Ut\n\
 X66WDVNJdPF4HYJ0ZEDhEyHVkUyVnI/s/nr3ejrAw4WC7o4gvEfGdwi5WJZTfpWy\n\
 tNWt4prHrJXWTs+/SkG/GatY6/stxnL2TmGtajYuGD2YIrcoIzTkjaBBEYTeHg07\n\
